@@ -44,10 +44,19 @@
         </el-checkbox-group>
       </el-form-item>
       <el-form-item label="书籍简介">
-        <el-col :span="16">
+        <el-col :span="20">
           <el-input type="textarea" v-model="form.desc"></el-input>
         </el-col>
       </el-form-item>
+
+      <el-form-item label="书籍详情">
+        <el-col :span="20">
+          <div id="wangeditor">
+            <div ref="editorElem" style="text-align:left"></div>
+          </div>
+        </el-col>
+      </el-form-item>
+
       <el-form-item>
         <el-button type="primary" @click="onSubmit">立即创建</el-button>
         <el-button>取消</el-button>
@@ -57,6 +66,9 @@
 </template>
 
 <script>
+// 引入富文本编辑器
+import E from "wangeditor";
+
 export default {
   name: "addbook",
   data() {
@@ -67,24 +79,26 @@ export default {
         type: [],
         imageUrl: "",
         imgsrc: "",
-        desc: ""
+        desc: "",
+        info: ""
       }
     };
   },
   methods: {
     onSubmit() {
       console.log("submit!");
-    //   把数据提交给服务器
-        this.axios.post('/addbook', this.form)
+      //   把数据提交给服务器
+      this.axios
+        .post("/addbook", this.form)
         .then(res => {
-            console.log(res)
-            if(res.data.r == 'ok'){
-                this.$router.push('/book/list');
-            }
+          console.log(res);
+          if (res.data.r == "ok") {
+            this.$router.push("/book/list");
+          }
         })
         .catch(err => {
-            console.error(err); 
-        })
+          console.error(err);
+        });
     },
     handleAvatarSuccess(res, file) {
       console.log(res);
@@ -104,6 +118,15 @@ export default {
       //   return isJPG && isLt2M;
       return true;
     }
+  },
+  mounted() {
+    var editor = new E(this.$refs.editorElem); //创建富文本实例
+    editor.customConfig.onchange = html => {
+      this.form.info = html; //把这个html通过catchData的方法传入父组件
+    };
+    editor.customConfig.uploadImgServer = "http://lulaoshi:81/uploadimgs";
+    editor.customConfig.uploadFileName = "myimgs";
+    editor.create();
   }
 };
 </script>

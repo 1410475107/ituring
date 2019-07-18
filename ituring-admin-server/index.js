@@ -90,18 +90,42 @@ app.get('/check', (req, res) => {
     console.log(req.session);
     res.json({ aid: req.session.aid, name: req.session.name });
 });
-
 // 接受上传的图片
 app.post('/uploads', upload.single('images'), function (req, res, next) {
     // console.log(req.file);
     res.json({ imgsrc: host + 'uploads/' + req.file.filename });
 });
+//编辑器上传图片接口
+app.post('/uploadimgs', upload.array('myimgs'), function (req, res, next) {
+    let r = {
+        "errno": 0,
+        "data": []
+    };
+    console.log(req.files);
+    for (let ind = 0; ind < req.files.length; ind++) {
+        const e = host + 'uploads/' + req.files[ind].filename;
+        r.data.push(e);
+    }
+    res.json(r);
+});
+
+// 对图片进行静态资源托管
+app.use('/uploads', express.static('uploads'));
+
+// 后面所有的操作必须建立在登录成功的情况之下
+app.use((req, res, next)=>{
+    if(req.session.aid){
+        next();
+    }else{
+        res.send({r:'access-forbidden'});
+    }
+});
 
 // 添加书籍路由
 app.post('/addbook', (req, res) => {
     let d = req.body;
-    let sql = 'INSERT INTO books(bookname, aid,name,writer,type,imgsrc,`desc`,addtimes) VALUES(?,?,?,?,?,?,?,NOW())';
-    let data = [d.bookname, req.session.aid, req.session.name, d.writer, JSON.stringify(d.type), d.imgsrc, d.desc];
+    let sql = 'INSERT INTO books(bookname, aid,name,writer,type,imgsrc,`desc`,info,addtimes) VALUES(?,?,?,?,?,?,?,?,NOW())';
+    let data = [d.bookname, req.session.aid, req.session.name, d.writer, JSON.stringify(d.type), d.imgsrc, d.desc, d.info];
     mydb.query(sql, data, (err, result) => {
         if (err) {
             console.log(err);
@@ -158,13 +182,6 @@ app.get('/getbook', (req, res) => {
         res.json(result[0]);
     });
 });
-
-
-
-
-
-// 对图片进行静态资源托管
-app.use('/uploads', express.static('uploads'));
 
 app.listen(81, () => {
     console.log(`Server started on 81`);

@@ -4,7 +4,7 @@
     <tag />
 
     <div class="title">
-      <h1>热门图书</h1>
+      <h1>图书列表</h1>
     </div>
     <BookList />
   </div>
