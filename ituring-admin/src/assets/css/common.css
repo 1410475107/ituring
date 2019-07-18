@@ -1,0 +1,22 @@
+html{
+}
+
+.main{
+    /* width: 100%; */
+    min-height: 200px;
+    /* background-color: #f08; */
+    margin-left: 195px;
+    margin-top: 15px;
+}
+
+a{
+    color: #fff;
+    text-decoration: none;
+}
+
+.el-breadcrumb{
+    height: 40px;
+    line-height: 40px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+}
